@@ -19,7 +19,7 @@ public final class PinpointLocalizer implements Localizer {
 
         //note I flipped the odometry pods on the robot so x is now y and y is now x
         public double parYTicks = -4131.688387905155; // y position of the parallel encoder (in tick units)
-        public double perpXTicks = 323.0380395469126; // x position of the perpendicular encoder (in tick units)
+        public double perpXTicks = 322.97849051288966; // x position of the perpendicular encoder (in tick units)
         //try to manually calculate these
     }
 
