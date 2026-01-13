@@ -37,8 +37,12 @@ public class Limelight {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
     }
 
-    public void startLimelight(int rate) {
-        setLimelightPollingRate(rate);
+    public void startLimelight() {
+        startLimelight(100);
+    }
+
+    public void startLimelight(int poll_rate) {
+        setLimelightPollingRate(poll_rate);
         limelight.start();
     }
 
