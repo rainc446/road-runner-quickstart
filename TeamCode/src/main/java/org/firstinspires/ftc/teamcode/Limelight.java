@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -14,16 +16,16 @@ public class Limelight {
 
     private int limelightMode; // 0 is to track AprilTags, 1 is used to track for balls and the colors
 
-    public Limelight (HardwareMap hardwareMap) {
+    public Limelight(HardwareMap hardwareMap) {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
     }
 
-    public void startLimelight (int rate) {
+    public void startLimelight(int rate) {
         setLimelightPullingRate(rate);
         limelight.start();
     }
 
-    public void closeLimeLight () {
+    public void closeLimeLight() {
         limelight.close();
     }
 
@@ -36,17 +38,17 @@ public class Limelight {
     // Use
     // *//
 
-    public void updateTelemetry () {
+    public void updateTelemetry() {
         LLResult llResult = limelight.getLatestResult();
         if (llResult != null && llResult.isValid()) {
 //
         }
     }
 
-    public final class setArtifactSequence (int sequence) {
+    public final class setArtifactSequence(int sequence) {
 
         @Override
-        public boolean run (@NonNull TelemetryPacket packet) {
+        public boolean run(@NonNull TelemetryPacket packet) {
             if () {
                 startLimelight();
                 List<FiducialResult> fiducials = result.getFiducialResults();
@@ -60,7 +62,7 @@ public class Limelight {
             }
             //robot should move/already be in position to shooting position
             // then rotate till it sees april tag and feeds it to spindexer
-            artifactSequence = ;
+            artifactSequence =;
             return
         }
     }
