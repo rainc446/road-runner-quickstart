@@ -21,7 +21,7 @@ public class Limelight {
     }
 
     public void startLimelight(int rate) {
-        setLimelightPullingRate(rate);
+        setLimelightPollingRate(rate);
         limelight.start();
     }
 
@@ -29,7 +29,7 @@ public class Limelight {
         limelight.close();
     }
 
-    public void setLimelightPullingRate(int rate) {
+    public void setLimelightPollingRate(int rate) {
         limelight.setPollRateHz(rate);
     }
 
