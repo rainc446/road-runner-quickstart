@@ -94,25 +94,14 @@ public class Limelight {
         }
     }
 
-    public final class setArtifactSequence(int sequence) {
-
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            if () {
-                startLimelight();
-                List<FiducialResult> fiducials = result.getFiducialResults();
-                for (FiducialResult fiducial : fiducials) {
-                    int id = fiducial.getFiducialId(); // The ID number of the fiducial
-                    double x = detection.getTargetXDegrees(); // Where it is (left-right)
-                    double y = detection.getTargetYDegrees(); // Where it is (up-down)
-                    double StrafeDistance_3D = fiducial.getRobotPoseTargetSpace().getY();
-                    telemetry.addData("Fiducial " + id, "is " + distance + " meters away");
-                }
-            }
-            //robot should move/already be in position to shooting position
-            // then rotate till it sees april tag and feeds it to spindexer
-            artifactSequence =;
-            return
+    public final class getArtifactSequence {
+        public void run(@NonNull TelemetryPacket packet) {
+            startLimelight();
+            Pipelines pipeline = getPipeline();
+            setPipeline(Pipelines.APRILTAGGER);
+            updateTelemetry();
+            setPipeline(pipeline);
+            closeLimeLight();
         }
     }
 
