@@ -267,6 +267,25 @@ public final class MecanumDrive {
         rightFront.setPower(wheelVels.rightFront.get(0) / maxPowerMag);
     }
 
+    public void driverRelativePower (double drive, double strafe, double turn) {
+
+        double denominator = Math.max(Math.abs(drive) + Math.abs(strafe) + Math.abs(turn), 1);
+
+        //10000% need to apply some kind of PID for all motors or get the drive train motors really close on tolerance
+
+        double lfV = ((drive + strafe + turn) / denominator); //front left motor spins considerably faster than the other motors
+        double lbV = ((drive - strafe + turn) / denominator);
+        double rfV = ((drive - strafe - turn) / denominator);
+        double rbV = ((drive + strafe - turn) / denominator);
+
+        leftFront.setPower(lfV);
+        rightFront.setPower(rfV);
+        leftBack.setPower(lbV);
+        rightBack.setPower(rbV);
+
+
+    }
+
     public final class FollowTrajectoryAction implements Action {
         public final TimeTrajectory timeTrajectory;
         private double beginTs = -1;
