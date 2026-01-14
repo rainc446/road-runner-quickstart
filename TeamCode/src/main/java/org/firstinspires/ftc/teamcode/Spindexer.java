@@ -114,6 +114,10 @@ public class Spindexer {
         return rgb;
     }
 
+    public RevColorSensorV3 getColorSensor () {
+        return colorSensor;
+    }
+
 
     public final class SetIndexAuto implements Action {
         //makes the assumption that the spindexer has been preloaded with 3 balls

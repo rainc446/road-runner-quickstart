@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.telop;
 
 import com.acmerobotics.roadrunner.Pose2d;
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -97,6 +98,12 @@ public class DriverTelop extends LinearOpMode {
     }
 
     public void updateTelem () {
-        telemetry.addData("Intake", spindexer.colorSensorTelemetry() );
+        RevColorSensorV3 colorSensor = spindexer.getColorSensor();
+
+        telemetry.addData("Red:", colorSensor.red() );
+        telemetry.addData("Green:", colorSensor.green() );
+        telemetry.addData("Blue:", colorSensor.blue() );
+        telemetry.update();
+
     }
 }
