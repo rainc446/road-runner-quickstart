@@ -3,18 +3,14 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
-import com.qualcomm.hardware.limelightvision.LLResult;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 @TeleOp(name = "RunLimelight", group = "Testing")
 public class RunLimelight extends LinearOpMode {
 
-    private Limelight limelight;
-
     @Override
     public void runOpMode() throws InterruptedException {
-        // Initialize Limelight with the opmode hardwareMap
-        limelight = new Limelight(hardwareMap);
+        // Initialize Limelight with the opmode hardwareMap (local variable)
+        Limelight limelight = new Limelight(hardwareMap);
 
         // Start the limelight with a default polling rate
         limelight.startLimelight(60);
@@ -28,39 +24,49 @@ public class RunLimelight extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            // Read the latest LLResult and print fiducial (AprilTag) info if present
-            LLResult result = limelight.getLatestResult();
-            if (result == null || !result.isValid()) {
-                telemetry.addData("Limelight", "No valid target found");
-            } else {
-                telemetry.addData("Limelight", "Valid target found");
+            boolean printed = false;
 
-                // General fields
-                telemetry.addData("tx", result.getTx());
-                telemetry.addData("ty", result.getTy());
+            // Use the helper to get the first detected AprilTag fiducial (or null)
+            LLResultTypes.FiducialResult fr = limelight.getAprilTag();
 
-                Pose3D botpose = result.getBotpose();
-                if (botpose != null) telemetry.addData("Botpose", botpose.toString());
+            if (fr != null) {
+                int id = fr.getFiducialId();
 
-                // Fiducial results (AprilTags)
-                java.util.List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-                if (fiducials != null && !fiducials.isEmpty()) {
-                    for (LLResultTypes.FiducialResult fr : fiducials) {
-                        telemetry.addData("Fiducial", String.format("ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees()));
+                // Map to a Motif if present
+                Limelight.Motif matched = null;
+                for (Limelight.Motif m : Limelight.Motif.values()) {
+                    if (m.getValue() == id) {
+                        matched = m;
+                        break;
                     }
-                } else {
-                    telemetry.addData("Fiducial", "None");
                 }
+
+                if (matched != null) {
+                    telemetry.addData("Motif", "%s", matched.name());
+                    telemetry.addData("Apriltag ID", id);
+                } else {
+                    telemetry.addData("Motif", "none");
+                    telemetry.addData("Apriltag ID", id);
+                }
+
+                // Print matched fiducial angles/family to confirm detection details
+                telemetry.addData("Fiducial", String.format(java.util.Locale.US, "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees()));
+
+                printed = true;
+            } else {
+                telemetry.addData("Motif", "none");
+                telemetry.addData("Apriltag ID", "none");
             }
 
-            // Always flush telemetry
-            telemetry.update();
+            // Only update telemetry when we added fields above
+            if (printed) telemetry.update();
 
             // Sleep a bit to avoid spamming CPU (polling rate is handled by Limelight object)
             sleep(50);
         }
 
         // Stop the limelight when exiting
+        // Note: local variable `limelight` is still accessible here
         limelight.closeLimeLight();
     }
 }
