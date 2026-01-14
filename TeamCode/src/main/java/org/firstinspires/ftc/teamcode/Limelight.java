@@ -1,34 +1,79 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Limelight {
     //https://docs.limelightvision.io/docs/docs-limelight/apis/ftc-programming
 
-    private Limelight3A limelight;
+    public enum Pipelines {
+        APRILTAGGER(0),
+        PURPLER(1),
+        GREENER(2);
+
+        private final int value;
+
+        Pipelines(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
+
+    private final Limelight3A limelight;
 
     private int limelightMode; // 0 is to track AprilTags, 1 is used to track for balls and the colors
 
-    public Limelight (HardwareMap hardwareMap) {
+    public Limelight(HardwareMap hardwareMap) {
+        // Use lowercase device name "limelight" to match the standard configuration and samples
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
     }
 
-    public void startLimelight (int rate) {
-        setLimelightPullingRate(rate);
+    public void startLimelight() {
+        startLimelight(100);
+    }
+
+    public void startLimelight(int poll_rate) {
+        setLimelightPollingRate(poll_rate);
         limelight.start();
     }
 
-    public void closeLimeLight () {
+
+    public void closeLimeLight() {
         limelight.close();
     }
 
-    public void setLimelightPullingRate(int rate) {
+    public void setLimelightPollingRate(int rate) {
         limelight.setPollRateHz(rate);
+    }
+
+    public void setPipeline(Pipelines pipeline) {
+        // Use the API provided by the Limelight3A sample: pipelineSwitch(index)
+        limelight.pipelineSwitch(pipeline.getValue());
+    }
+
+    public Pipelines getPipeline() {
+        // Read the pipeline index via the status object (matches sample code)
+        LLStatus status = limelight.getStatus();
+        if (status == null) return null;
+        int index = status.getPipelineIndex();
+        for (Pipelines pipeline : Pipelines.values()) {
+            if (pipeline.getValue() == index) {
+                return pipeline;
+            }
+        }
+        return null; // or throw an exception if preferred
     }
 
     //**
@@ -36,33 +81,145 @@ public class Limelight {
     // Use
     // *//
 
-    public void updateTelemetry () {
+    // Backwards-compatible no-arg method. If Blocks-style static telemetry is available it will be used.
+    public void updateTelemetry() {
+        if (telemetry != null) {
+            updateTelemetry(telemetry);
+        }
+    }
+
+    // Preferred method: pass in the OpMode telemetry object so output goes to the current OpMode.
+    public void updateTelemetry(@NonNull Telemetry t) {
         LLResult llResult = limelight.getLatestResult();
-        if (llResult != null && llResult.isValid()) {
-//
+        if (llResult == null || !llResult.isValid()) {
+            t.addData("Limelight", "No valid target found");
+        } else {
+            t.addData("Limelight", "Valid target found");
+            double tx = llResult.getTx(); // Horizontal offset from crosshair to target
+            double ty = llResult.getTy(); // Vertical offset from crosshair to target
+            double ta = llResult.getTa(); // Target area (0% of image to 100
+
+            t.addData("LLTargetX", tx);
+            t.addData("LLTargetY", ty);
+            t.addData("LLTargetA", ta);
         }
     }
 
-    public final class setArtifactSequence (int sequence) {
+    // Expose the raw latest result so OpModes can inspect fiducial/apriltag outputs, etc.
+    public LLResult getLatestResult() {
+        return limelight.getLatestResult();
+    }
 
-        @Override
-        public boolean run (@NonNull TelemetryPacket packet) {
-            if () {
-                startLimelight();
-                List<FiducialResult> fiducials = result.getFiducialResults();
-                for (FiducialResult fiducial : fiducials) {
-                    int id = fiducial.getFiducialId(); // The ID number of the fiducial
-                    double x = detection.getTargetXDegrees(); // Where it is (left-right)
-                    double y = detection.getTargetYDegrees(); // Where it is (up-down)
-                    double StrafeDistance_3D = fiducial.getRobotPoseTargetSpace().getY();
-                    telemetry.addData("Fiducial " + id, "is " + distance + " meters away");
-                }
+    /**
+     * Return the first detected AprilTag fiducial result, or null if none.
+     * This method will temporarily switch the pipeline to APRILTAGGER, read the
+     * latest result, then restore the previous pipeline and close the Limelight.
+     */
+    public LLResultTypes.FiducialResult getAprilTag() {
+        // Start the limelight (harmless if already started)
+        startLimelight();
+
+        // Remember current pipeline and switch to AprilTag detector
+        Pipelines prior = getPipeline();
+        setPipeline(Pipelines.APRILTAGGER);
+
+        // Read latest result
+        LLResult result = getLatestResult();
+        LLResultTypes.FiducialResult found = null;
+
+        if (result != null && result.isValid()) {
+            java.util.List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+            if (fiducials != null && !fiducials.isEmpty()) {
+                // Return the first fiducial found
+                found = fiducials.get(0);
             }
-            //robot should move/already be in position to shooting position
-            // then rotate till it sees april tag and feeds it to spindexer
-            artifactSequence = ;
-            return
+        }
+
+        // Restore prior pipeline
+        if (prior != null) setPipeline(prior);
+
+        // Close limelight to conserve resources
+        closeLimeLight();
+
+        return found;
+    }
+
+    public enum Motif {
+        GPP(21),
+        PGP(22),
+        PPG(23);
+
+        private final int value;
+
+        Motif(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
         }
     }
+
+
+    public final class ArtifactSequence {
+
+        public Motif detectedMotif = null;
+
+        // Read AprilTags from the Limelight, match the tag ID to a Motif, set detectedMotif, and return it.
+        // Returns null if no matching AprilTag is found or no valid result is available.
+        public Motif update(@NonNull TelemetryPacket packet) {
+            // Start the limelight (harmless if already started in most use-cases)
+            startLimelight();
+
+            // Remember current pipeline and switch to AprilTag detector
+            Pipelines prior = getPipeline();
+            setPipeline(Pipelines.APRILTAGGER);
+
+            // Give the limelight one poll cycle to update (poll rate controls actual timing). We attempt to use
+            // the latest available result immediately.
+            LLResult result = getLatestResult();
+            Motif found = null;
+
+            if (result != null && result.isValid()) {
+                java.util.List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+                if (fiducials != null && !fiducials.isEmpty()) {
+                    // Iterate and pick the first fiducial that maps to a known Motif
+                    for (LLResultTypes.FiducialResult fr : fiducials) {
+                        int id = fr.getFiducialId();
+                        Motif m = motifFromId(id);
+                        if (m != null) {
+                            found = m;
+                            // Optionally publish info to the dashboard packet
+                            packet.put("apriltag_id", id);
+                            packet.put("detected_motif", m.name());
+                            break;
+                        }
+                    }
+                } else {
+                    packet.put("apriltag", "none");
+                }
+            } else {
+                packet.put("apriltag_result", "invalid");
+            }
+
+            // Restore prior pipeline
+            if (prior != null) setPipeline(prior);
+
+            // Close limelight to conserve resources (matches previous behavior)
+            closeLimeLight();
+
+            detectedMotif = found;
+            return found;
+        }
+
+        // Helper to map AprilTag ID to Motif enum. Returns null if no mapping exists.
+        private Motif motifFromId(int id) {
+            for (Motif m : Motif.values()) {
+                if (m.getValue() == id) return m;
+            }
+            return null;
+        }
+    }
+
 
 }
