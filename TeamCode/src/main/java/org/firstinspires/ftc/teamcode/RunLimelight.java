@@ -24,8 +24,6 @@ public class RunLimelight extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            boolean printed = false;
-
             // Use the helper to get the first detected AprilTag fiducial (or null)
             LLResultTypes.FiducialResult fr = limelight.getAprilTag();
 
@@ -41,25 +39,18 @@ public class RunLimelight extends LinearOpMode {
                     }
                 }
 
+                // Only show telemetry for matched motifs to avoid spamming the driver station
                 if (matched != null) {
                     telemetry.addData("Motif", "%s", matched.name());
                     telemetry.addData("Apriltag ID", id);
-                } else {
-                    telemetry.addData("Motif", "none");
-                    telemetry.addData("Apriltag ID", id);
+
+                    // Print matched fiducial angles/family to confirm detection details
+                    telemetry.addData("Fiducial", String.format(java.util.Locale.US, "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees()));
+
+                    // Update telemetry only when we added fields above (i.e., a useful tag was found)
+                    telemetry.update();
                 }
-
-                // Print matched fiducial angles/family to confirm detection details
-                telemetry.addData("Fiducial", String.format(java.util.Locale.US, "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees()));
-
-                printed = true;
-            } else {
-                telemetry.addData("Motif", "none");
-                telemetry.addData("Apriltag ID", "none");
             }
-
-            // Only update telemetry when we added fields above
-            if (printed) telemetry.update();
 
             // Sleep a bit to avoid spamming CPU (polling rate is handled by Limelight object)
             sleep(50);
