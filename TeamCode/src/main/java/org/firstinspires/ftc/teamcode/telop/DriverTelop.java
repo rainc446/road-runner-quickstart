@@ -20,7 +20,7 @@ public class DriverTelop extends LinearOpMode {
     private Spindexer spindexer;
     private Pose2d intialPosition;
 
-    private Telemetry telemetry;
+    public Telemetry telemetry;
 
 
     @Override
@@ -38,6 +38,8 @@ public class DriverTelop extends LinearOpMode {
         while (opModeIsActive()) {
             controllerBehaviorA();
             controllerBehaviorB();
+
+            updateTelem();
         }
 
     }
@@ -47,13 +49,13 @@ public class DriverTelop extends LinearOpMode {
         double leftY = -gamepad1.left_stick_y;
         double rightX = gamepad1.right_stick_x ;
 
-        if (leftY <= -0.1 && leftY >= 0.1) {
+        if (leftY >= -0.1  && leftY <= 0.1) {
             leftY = 0;
         }
-        if (leftX <= -0.1 && leftX >= 0.1) {
+        if (leftX >= -0.1 && leftX <= 0.1) {
             leftX = 0;
         }
-        if (rightX <= -0.1 && rightX >= 0.1) {
+        if (rightX >= -0.1 && rightX <= 0.1) {
             rightX = 0;
         }
 
@@ -92,5 +94,9 @@ public class DriverTelop extends LinearOpMode {
                 spindexer.cycleSpindexer();
             }
         }
+    }
+
+    public void updateTelem () {
+        telemetry.addData("Intake", spindexer.colorSensorTelemetry() );
     }
 }

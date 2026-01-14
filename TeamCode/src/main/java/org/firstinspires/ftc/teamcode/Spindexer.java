@@ -10,6 +10,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import java.util.ArrayList;
 
 public class Spindexer {
@@ -26,9 +28,6 @@ public class Spindexer {
 
     private final double oneCycle = 1453.2 * 120 / 72;
     private final int error = 50;
-
-
-
 
 
     public Spindexer (HardwareMap hardwareMap) {
@@ -80,18 +79,36 @@ public class Spindexer {
         }
     }
 
-    public void readIntake () {
-        //use color sensor
+    public String readIntake () {
+        if (colorSensor.green() >=  128) {
+            return "Green";
+        }
+        if (colorSensor.red() >= 128 && colorSensor.blue() >= 128) {
+            return "Purple";
+        }
+        else {
+            return "Empty";
+        }
+
     }
 
-    public void setArtifactSequence () {
-
+    public boolean setMotifSequence () {
+//        Limelight.Motif motif = Limelight.ArtifactSequence.getDetectedMotif();
+//        if (Limelight.ArtifactSequence.getDetectedMotif() != null) {
+//            return false;
+//        }
+//        if () {
+//
+//        }
+        return false;
     }
 
-    public String colorDetected () {
+    public String colorSensorTelemetry () {
+
         String rgb = "";
 
-        rgb += "red:" + colorSensor.red();
+        rgb += "\nred: " + colorSensor.red();
+
         rgb += "\ngreen:" + colorSensor.green();
         rgb += "\nblue:" + colorSensor.blue();
         return rgb;

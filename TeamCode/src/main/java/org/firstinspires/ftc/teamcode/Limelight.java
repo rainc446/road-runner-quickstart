@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.tel
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Actions;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
@@ -144,6 +145,8 @@ public class Limelight {
         return found;
     }
 
+
+
     public enum Motif {
         GPP(21),
         PGP(22),
@@ -159,8 +162,6 @@ public class Limelight {
             return value;
         }
     }
-
-
     public final class ArtifactSequence {
 
         public Motif detectedMotif = null;
@@ -219,6 +220,7 @@ public class Limelight {
             }
             return null;
         }
+
     }
 
 
