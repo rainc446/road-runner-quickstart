@@ -26,6 +26,7 @@ public class StartRedTop extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         Action path = mecanumDrive.actionBuilder(beginPose)
+                .lineToX(-50)
 //                .stopAndAdd()
                 .build();
     }

@@ -26,6 +26,7 @@ public class MeepMeepTesting {
         //left is inverted on the field, so we may need to make all negatives x coordinates and vectors  in the commmands in actual testing this may mess with tunining, y is fine,
         // heading should not be affected as its determined by what you initally set it too
         //or we could reverse encoder direction on the x wheel
+        //update: Y may need to be treated as x and vice versa
 
         //pathing,
         // Pos1 : go from starting position, to a little bit out so we can read the obelisk for the motif
@@ -33,8 +34,9 @@ public class MeepMeepTesting {
         // Pos2 : go from motif reading position to the shooting position(75-80 inches 3ish mats),
         // Pos3 :
 
-        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(new Vector2d(60.0, -13) ,Math.toRadians(180))) // start from the blue goal
+        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(new Vector2d(-60.0, -37), Math.toRadians(0))) // start from the blue goal
                 .lineToX(59)
+
 //                .lineToX(30)
 //                .turn(Math.toRadians(90))
 //                .lineToY(30)
