@@ -13,8 +13,14 @@ import com.acmerobotics.roadrunner.Vector2d;
 
 /**
  * Example OpMode demonstrating how to use Limelight Actions with RoadRunner
- * This demonstrates the primary use case: detecting the motif once at the start
- * and accessing it throughout the match.
+ * 
+ * EXAMPLE 1: Reading ANY AprilTag (including non-motif tags)
+ *   - Shows how to detect and get the ID of any AprilTag
+ *   - Returns ID, family, and position for any tag detected
+ * 
+ * EXAMPLE 2: Detecting motif and storing for match duration
+ *   - Detect motif once at the start
+ *   - Access stored motif throughout the match
  */
 @Autonomous(name = "Limelight Action Example", group = "Testing")
 public class LimelightActionExample extends LinearOpMode {
@@ -32,7 +38,43 @@ public class LimelightActionExample extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
-            // Detect motif once at the beginning and store it for the match
+            // EXAMPLE 1: Read ANY AprilTag and get its ID (even if it's not a motif)
+            telemetry.addData("Example 1", "Reading any AprilTag");
+            telemetry.update();
+            
+            // Create an action to get any AprilTag
+            Limelight.GetAprilTagAction getTagAction = limelight.new GetAprilTagAction();
+            
+            Action readAnyTagSequence = new SequentialAction(
+                    limelight.startLimelightAction(100),
+                    limelight.setPipelineAction(Limelight.Pipelines.APRILTAGGER),
+                    getTagAction,
+                    limelight.closeLimelightAction()
+            );
+
+            // Run the sequence
+            com.acmerobotics.roadrunner.Actions.runBlocking(readAnyTagSequence);
+
+            // Get the result - this works for ANY AprilTag, not just motifs
+            com.qualcomm.hardware.limelightvision.LLResultTypes.FiducialResult tagResult = getTagAction.getResult();
+            
+            if (tagResult != null) {
+                telemetry.addData("AprilTag Found", "Yes");
+                telemetry.addData("AprilTag ID", tagResult.getFiducialId());
+                telemetry.addData("AprilTag Family", tagResult.getFamily());
+                telemetry.addData("AprilTag X", "%.2f degrees", tagResult.getTargetXDegrees());
+                telemetry.addData("AprilTag Y", "%.2f degrees", tagResult.getTargetYDegrees());
+            } else {
+                telemetry.addData("AprilTag Found", "No");
+            }
+            
+            telemetry.update();
+            sleep(2000);
+
+            // EXAMPLE 2: Detect motif once at the beginning and store it for the match
+            telemetry.addData("Example 2", "Detecting motif for match");
+            telemetry.update();
+            
             Action detectMotifSequence = new SequentialAction(
                     limelight.startLimelightAction(100),
                     limelight.setPipelineAction(Limelight.Pipelines.APRILTAGGER),
