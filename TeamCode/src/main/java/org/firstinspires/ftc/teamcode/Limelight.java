@@ -36,10 +36,29 @@ public class Limelight {
     private final Limelight3A limelight;
 
     private int limelightMode; // 0 is to track AprilTags, 1 is used to track for balls and the colors
+    
+    // Stores the motif detected at the start of auto for the entire match duration
+    private Motif storedMotif = null;
 
     public Limelight(HardwareMap hardwareMap) {
         // Use lowercase device name "limelight" to match the standard configuration and samples
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
+    }
+    
+    /**
+     * Get the stored motif that was detected at the start of auto
+     * @return the stored Motif, or null if not yet detected
+     */
+    public Motif getStoredMotif() {
+        return storedMotif;
+    }
+    
+    /**
+     * Manually set the stored motif (useful for testing)
+     * @param motif the motif to store
+     */
+    public void setStoredMotif(Motif motif) {
+        this.storedMotif = motif;
     }
 
     public void startLimelight() {
@@ -336,7 +355,8 @@ public class Limelight {
     }
 
     /**
-     * Action to detect artifact sequence (motif) from AprilTags
+     * Action to detect artifact sequence (motif) from AprilTags and store it for match duration.
+     * Designed to be called once at the beginning of auto.
      * Note: Assumes Limelight is already started and APRILTAGGER pipeline is active.
      * This Action is designed for single use. Create a new instance for each use.
      */
@@ -375,10 +395,15 @@ public class Limelight {
                 }
 
                 detectedMotif = found;
+                // Store the motif in the Limelight instance for match-long access
+                storedMotif = found;
+                
                 if (found != null) {
                     packet.put("motif_detected", found.name());
+                    packet.put("motif_stored", true);
                 } else {
                     packet.put("motif_detected", "none");
+                    packet.put("motif_stored", false);
                 }
                 initialized = true;
             }

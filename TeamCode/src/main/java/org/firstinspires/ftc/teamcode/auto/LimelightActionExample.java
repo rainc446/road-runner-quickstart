@@ -13,6 +13,8 @@ import com.acmerobotics.roadrunner.Vector2d;
 
 /**
  * Example OpMode demonstrating how to use Limelight Actions with RoadRunner
+ * This demonstrates the primary use case: detecting the motif once at the start
+ * and accessing it throughout the match.
  */
 @Autonomous(name = "Limelight Action Example", group = "Testing")
 public class LimelightActionExample extends LinearOpMode {
@@ -30,37 +32,55 @@ public class LimelightActionExample extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
-            // Example 1: Simple sequence of Limelight actions
-            // Properly manage Limelight state with start -> operations -> close
-            Action limelightSequence = new SequentialAction(
+            // Detect motif once at the beginning and store it for the match
+            Action detectMotifSequence = new SequentialAction(
                     limelight.startLimelightAction(100),
                     limelight.setPipelineAction(Limelight.Pipelines.APRILTAGGER),
                     limelight.detectArtifactSequenceAction(),
                     limelight.closeLimelightAction()
             );
 
-            // Run the action sequence
-            com.acmerobotics.roadrunner.Actions.runBlocking(limelightSequence);
+            // Run the detection sequence
+            com.acmerobotics.roadrunner.Actions.runBlocking(detectMotifSequence);
 
-            telemetry.addData("Status", "Limelight actions completed");
+            // Now the motif is stored and can be accessed throughout the match
+            Limelight.Motif detectedMotif = limelight.getStoredMotif();
+            
+            if (detectedMotif != null) {
+                telemetry.addData("Detected Motif", detectedMotif.name());
+                telemetry.addData("Motif ID", detectedMotif.getValue());
+                
+                // Example: Use the motif to make autonomous decisions
+                switch (detectedMotif) {
+                    case GPP:
+                        telemetry.addData("Action", "Following GPP path");
+                        // Execute GPP-specific autonomous routine
+                        break;
+                    case PGP:
+                        telemetry.addData("Action", "Following PGP path");
+                        // Execute PGP-specific autonomous routine
+                        break;
+                    case PPG:
+                        telemetry.addData("Action", "Following PPG path");
+                        // Execute PPG-specific autonomous routine
+                        break;
+                }
+            } else {
+                telemetry.addData("Warning", "No motif detected, using default path");
+                // Execute default autonomous routine
+            }
+            
             telemetry.update();
-
-            // Example 2: Using Limelight actions with movement
-            // Keep Limelight active during the entire sequence
-            Action complexSequence = drive.actionBuilder(beginPose)
-                    .afterTime(0, limelight.startLimelightAction())
-                    .afterTime(0.1, limelight.setPipelineAction(Limelight.Pipelines.APRILTAGGER))
-                    .lineToX(-50)
-                    .waitSeconds(0.5) // Wait for Limelight to get a good reading
-                    .afterTime(0, limelight.getAprilTagAction())
-                    .lineToX(-40)
-                    .afterTime(0, limelight.closeLimelightAction())
-                    .build();
-
-            com.acmerobotics.roadrunner.Actions.runBlocking(complexSequence);
-
-            telemetry.addData("Status", "Complex sequence completed");
+            
+            // Example: Access the stored motif later in the match
+            sleep(1000);
+            
+            // You can check the motif again anytime during the match
+            Limelight.Motif storedMotif = limelight.getStoredMotif();
+            telemetry.addData("Stored Motif (later)", storedMotif != null ? storedMotif.name() : "None");
             telemetry.update();
+            
+            sleep(2000);
         }
     }
 }
