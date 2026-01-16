@@ -42,18 +42,38 @@ public class LimelightActionExample extends LinearOpMode {
             telemetry.addData("Example 1", "Reading any AprilTag");
             telemetry.update();
             
+            // Start Limelight and set pipeline
+            limelight.startLimelight(100);
+            sleep(100); // Give Limelight time to start up
+            limelight.setPipeline(Limelight.Pipelines.APRILTAGGER);
+            sleep(100); // Give pipeline time to switch
+            
+            telemetry.addData("Status", "Limelight started, searching...");
+            telemetry.update();
+            
             // Create an action to get any AprilTag
             Limelight.GetAprilTagAction getTagAction = limelight.new GetAprilTagAction();
             
-            Action readAnyTagSequence = new SequentialAction(
-                    limelight.startLimelightAction(100),
-                    limelight.setPipelineAction(Limelight.Pipelines.APRILTAGGER),
-                    getTagAction,
-                    limelight.closeLimelightAction()
-            );
-
-            // Run the sequence
-            com.acmerobotics.roadrunner.Actions.runBlocking(readAnyTagSequence);
+            // Run the detection action
+            while (opModeIsActive() && getTagAction.run(new com.acmerobotics.dashboard.telemetry.TelemetryPacket())) {
+                // Continue running until the action completes
+                telemetry.addData("Status", "Searching for AprilTag...");
+                
+                // Add raw result info for debugging
+                com.qualcomm.hardware.limelightvision.LLResult rawResult = limelight.getLatestResult();
+                if (rawResult != null) {
+                    telemetry.addData("Result Valid", rawResult.isValid());
+                    if (rawResult.isValid()) {
+                        java.util.List<com.qualcomm.hardware.limelightvision.LLResultTypes.FiducialResult> fiducials = rawResult.getFiducialResults();
+                        telemetry.addData("Fiducials Found", fiducials != null ? fiducials.size() : 0);
+                    }
+                } else {
+                    telemetry.addData("Result", "null");
+                }
+                
+                telemetry.update();
+                sleep(50); // Give Limelight time to process frames
+            }
 
             // Get the result - this works for ANY AprilTag, not just motifs
             com.qualcomm.hardware.limelightvision.LLResultTypes.FiducialResult tagResult = getTagAction.getResult();
@@ -67,8 +87,9 @@ public class LimelightActionExample extends LinearOpMode {
             } else {
                 telemetry.addData("AprilTag Found", "No");
             }
-            
             telemetry.update();
+            
+            limelight.closeLimeLight();
             sleep(2000);
 
             // EXAMPLE 2: Detect motif once at the beginning and store it for the match
@@ -83,7 +104,12 @@ public class LimelightActionExample extends LinearOpMode {
             );
 
             // Run the detection sequence
-            com.acmerobotics.roadrunner.Actions.runBlocking(detectMotifSequence);
+            while (opModeIsActive() && !detectMotifSequence.run(new com.acmerobotics.dashboard.telemetry.TelemetryPacket())) {
+                // Continue running until the action completes
+                telemetry.addData("Status", "Detecting motif...");
+                telemetry.update();
+                sleep(50); // Give Limelight time to process frames
+            }
 
             // Now the motif is stored and can be accessed throughout the match
             Limelight.Motif detectedMotif = limelight.getStoredMotif();
