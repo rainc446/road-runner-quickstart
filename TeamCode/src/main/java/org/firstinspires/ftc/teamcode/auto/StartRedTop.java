@@ -23,7 +23,7 @@ import org.firstinspires.ftc.teamcode.Outtake;
 @Autonomous(name = "Start Red Top")
 public class StartRedTop extends LinearOpMode {
 
-    private Pose2d beginPose = new Pose2d(new Vector2d(-60.0, 37), Math.toRadians(0));
+    private Pose2d beginPose;
 
 
     //hardware
@@ -41,24 +41,26 @@ public class StartRedTop extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
+//        mecanumDrive.updatePoseEstimate(); use this to update pose from trajectory to trajectory
+
+
+        waitForStart();
+
+
+        beginPose = new Pose2d(0, 0, Math.toRadians(0));
+
         mecanumDrive = new MecanumDrive(this.hardwareMap, beginPose);
         limelight = new Limelight(this.hardwareMap);
         outtake = new Outtake(this.hardwareMap);
-
-
-
-//        mecanumDrive.updatePoseEstimate(); use this to update pose from trajectory to trajectory
-
-        waitForStart();
         //https://learnroadrunner.com/trajectorybuilder-functions.html#splineto-endposition-vector2d-endtangent-double
 
+        //at 0 heading positive x is forward, negative x is backwards, positive Y is left negative y right when 0,0 intake facing forward
+
         TrajectoryActionBuilder test = mecanumDrive.actionBuilder(beginPose)
-                .lineToX(-50)
-                .waitSeconds(3)
-                .splineTo(new Vector2d(-40, 27), Math.toRadians(90))
-                .waitSeconds(2)
-                .strafeTo(new Vector2d(-40, 10)
-                );
+                .waitSeconds(1)
+                .lineToXConstantHeading(10)
+                .waitSeconds(1)
+                .strafeTo(new Vector2d(10,10));
 //                .splineToSplineHeading(new Pose2d(-50, 37, Math.toRadians(0)), Math.toRadians(0))//                .stopAndAdd();
 
         TrajectoryActionBuilder goToObelisk = mecanumDrive.actionBuilder(beginPose)

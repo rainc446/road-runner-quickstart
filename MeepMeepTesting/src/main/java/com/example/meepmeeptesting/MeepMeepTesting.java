@@ -61,10 +61,13 @@ public class MeepMeepTesting {
 
                 );
 
-
+        TrajectoryActionBuilder test = myBot.getDrive().actionBuilder(new Pose2d(-60.0, 37, Math.toRadians(0)))
+                .waitSeconds(1)
+                .lineToX(-50
+                );
 
         myBot.runAction(
-                goToObelisk.build()
+                test.build()
         );
 
 //
