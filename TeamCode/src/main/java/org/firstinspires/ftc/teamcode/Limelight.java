@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.tel
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Actions;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
@@ -223,5 +224,184 @@ public class Limelight {
 
     }
 
+    // RoadRunner Actions for Limelight functionality
+
+    /**
+     * Action to start the Limelight with a specified polling rate
+     */
+    public class StartLimelightAction implements Action {
+        private final int pollRate;
+        private boolean initialized = false;
+
+        public StartLimelightAction(int pollRate) {
+            this.pollRate = pollRate;
+        }
+
+        public StartLimelightAction() {
+            this(100); // Default poll rate
+        }
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                startLimelight(pollRate);
+                packet.put("limelight_started", true);
+                packet.put("poll_rate", pollRate);
+                initialized = true;
+            }
+            return false; // Action completes immediately
+        }
+    }
+
+    /**
+     * Action to close/stop the Limelight
+     */
+    public class CloseLimelightAction implements Action {
+        private boolean initialized = false;
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                closeLimeLight();
+                packet.put("limelight_closed", true);
+                initialized = true;
+            }
+            return false; // Action completes immediately
+        }
+    }
+
+    /**
+     * Action to set the Limelight pipeline
+     */
+    public class SetPipelineAction implements Action {
+        private final Pipelines pipeline;
+        private boolean initialized = false;
+
+        public SetPipelineAction(Pipelines pipeline) {
+            this.pipeline = pipeline;
+        }
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                setPipeline(pipeline);
+                packet.put("pipeline_set", pipeline.name());
+                initialized = true;
+            }
+            return false; // Action completes immediately
+        }
+    }
+
+    /**
+     * Action to detect and retrieve an AprilTag
+     */
+    public class GetAprilTagAction implements Action {
+        private boolean initialized = false;
+        private LLResultTypes.FiducialResult result = null;
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                result = getAprilTag();
+                if (result != null) {
+                    packet.put("apriltag_found", true);
+                    packet.put("apriltag_id", result.getFiducialId());
+                    packet.put("apriltag_family", result.getFamily());
+                    packet.put("apriltag_x", result.getTargetXDegrees());
+                    packet.put("apriltag_y", result.getTargetYDegrees());
+                } else {
+                    packet.put("apriltag_found", false);
+                }
+                initialized = true;
+            }
+            return false; // Action completes immediately
+        }
+
+        public LLResultTypes.FiducialResult getResult() {
+            return result;
+        }
+    }
+
+    /**
+     * Action to detect artifact sequence (motif) from AprilTags
+     */
+    public class DetectArtifactSequenceAction implements Action {
+        private final ArtifactSequence artifactSequence;
+        private boolean initialized = false;
+
+        public DetectArtifactSequenceAction() {
+            this.artifactSequence = new ArtifactSequence();
+        }
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                Motif detected = artifactSequence.update(packet);
+                if (detected != null) {
+                    packet.put("motif_detected", detected.name());
+                } else {
+                    packet.put("motif_detected", "none");
+                }
+                initialized = true;
+            }
+            return false; // Action completes immediately
+        }
+
+        public Motif getDetectedMotif() {
+            return artifactSequence.detectedMotif;
+        }
+    }
+
+    // Convenience methods to create actions
+
+    /**
+     * Create an action to start the Limelight
+     * @param pollRate polling rate in Hz
+     * @return StartLimelightAction
+     */
+    public Action startLimelightAction(int pollRate) {
+        return new StartLimelightAction(pollRate);
+    }
+
+    /**
+     * Create an action to start the Limelight with default polling rate
+     * @return StartLimelightAction
+     */
+    public Action startLimelightAction() {
+        return new StartLimelightAction();
+    }
+
+    /**
+     * Create an action to close the Limelight
+     * @return CloseLimelightAction
+     */
+    public Action closeLimelightAction() {
+        return new CloseLimelightAction();
+    }
+
+    /**
+     * Create an action to set the pipeline
+     * @param pipeline the pipeline to set
+     * @return SetPipelineAction
+     */
+    public Action setPipelineAction(Pipelines pipeline) {
+        return new SetPipelineAction(pipeline);
+    }
+
+    /**
+     * Create an action to get an AprilTag
+     * @return GetAprilTagAction
+     */
+    public Action getAprilTagAction() {
+        return new GetAprilTagAction();
+    }
+
+    /**
+     * Create an action to detect artifact sequence
+     * @return DetectArtifactSequenceAction
+     */
+    public Action detectArtifactSequenceAction() {
+        return new DetectArtifactSequenceAction();
+    }
 
 }
