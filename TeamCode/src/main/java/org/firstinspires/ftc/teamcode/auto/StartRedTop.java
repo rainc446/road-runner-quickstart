@@ -67,7 +67,7 @@ public class StartRedTop extends LinearOpMode {
 
         Actions.runBlocking(
                 new SequentialAction(
-                        goToObelisk,
+                        goToObelisk.build()
 
 
                 )

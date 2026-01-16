@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Limelight;
@@ -27,7 +28,10 @@ public class StartBlueTop extends LinearOpMode {
         waitForStart();
 
         TrajectoryActionBuilder path = mecanumDrive.actionBuilder(beginPose)
-                .afterTime()
+                .lineToX(-50);
 
+        Actions.runBlocking(
+                path.build()
+        );
     }
 }
