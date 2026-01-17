@@ -67,7 +67,9 @@ PinpointLocalizer implements Localizer {
     public PoseVelocity2d update() {
         driver.update();
         if (Objects.requireNonNull(driver.getDeviceStatus()) == GoBildaPinpointDriver.DeviceStatus.READY) {
-            // Negate X and Y to correct for inverted field coordinate system
+            // Negate X and Y positions and velocities to correct for Pinpoint driver's coordinate
+            // system orientation relative to expected field coordinates. The heading angle does not
+            // need negation as rotational orientation is correctly aligned with field.
             txPinpointRobot = new Pose2d(-driver.getPosX(DistanceUnit.INCH), -driver.getPosY(DistanceUnit.INCH), driver.getHeading(UnnormalizedAngleUnit.RADIANS));
             Vector2d worldVelocity = new Vector2d(-driver.getVelX(DistanceUnit.INCH), -driver.getVelY(DistanceUnit.INCH));
             Vector2d robotVelocity = Rotation2d.fromDouble(-txPinpointRobot.heading.log()).times(worldVelocity);
