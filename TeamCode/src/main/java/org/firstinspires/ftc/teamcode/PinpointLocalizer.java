@@ -72,6 +72,7 @@ PinpointLocalizer implements Localizer {
             // need negation as rotational orientation is correctly aligned with field.
             txPinpointRobot = new Pose2d(-driver.getPosX(DistanceUnit.INCH), -driver.getPosY(DistanceUnit.INCH), driver.getHeading(UnnormalizedAngleUnit.RADIANS));
             Vector2d worldVelocity = new Vector2d(-driver.getVelX(DistanceUnit.INCH), -driver.getVelY(DistanceUnit.INCH));
+            // Transform world velocity to robot-relative velocity (negation is inverse rotation, not coordinate correction)
             Vector2d robotVelocity = Rotation2d.fromDouble(-txPinpointRobot.heading.log()).times(worldVelocity);
 
             return new PoseVelocity2d(robotVelocity, driver.getHeadingVelocity(UnnormalizedAngleUnit.RADIANS));
