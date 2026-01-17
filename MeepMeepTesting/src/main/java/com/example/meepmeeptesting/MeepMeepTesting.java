@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
+import com.noahbres.meepmeep.roadrunner.DriveShim;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 
 public class MeepMeepTesting {
@@ -40,45 +41,47 @@ public class MeepMeepTesting {
         // 3ish mats),
         // Pos3 :
 
-        Pose2d beginPose = new Pose2d(new Vector2d(-60.0, -37), Math.toRadians(0));
+        Pose2d beginPose = new Pose2d(new Vector2d(-60.0, 37), Math.toRadians(0));
+
+        DriveShim mechanumDrive = myBot.getDrive();
+
 
         // start from goal go to center
 
-        TrajectoryActionBuilder goToObelisk = myBot.getDrive().actionBuilder(beginPose)
+        TrajectoryActionBuilder goToObelisk = mechanumDrive.actionBuilder(beginPose)
                 .waitSeconds(1)
                 .splineToSplineHeading(new Pose2d(-34, 0, Math.toRadians(180)), Math.toRadians(45));
 
-        TrajectoryActionBuilder goToShootingZone0 = myBot.getDrive()
+        TrajectoryActionBuilder goToShootingZone0 = mechanumDrive
                 .actionBuilder(new Pose2d(-34, 0, Math.toRadians(180)))
                 .splineToLinearHeading(new Pose2d(-10, 10, Math.toRadians(135)), Math.toRadians(10))
                 .waitSeconds(1);
 
-        TrajectoryActionBuilder goToBallSet1 = myBot.getDrive()
+        TrajectoryActionBuilder goToBallSet1 = mechanumDrive
                 .actionBuilder(new Pose2d(-10, 10, Math.toRadians(135)))
-                .splineToLinearHeading(new Pose2d(-11, -30, Math.toRadians(270)), Math.toRadians(-20));
+                .splineToLinearHeading(new Pose2d(-11, 30, Math.toRadians(90)), Math.toRadians(20));
 
-        TrajectoryActionBuilder intakeBallSet1 = myBot.getDrive()
-                .actionBuilder(new Pose2d(-11, -30, Math.toRadians(270)))
-                .lineToY(-50);
+        TrajectoryActionBuilder intakeBallSet1 = mechanumDrive
+                .actionBuilder(new Pose2d(-11, 30, Math.toRadians(90)))
+                .lineToY(50)
+                .turnTo(Math.toRadians(180));
 
-        TrajectoryActionBuilder goToShootingZone1 = myBot.getDrive()
-                .actionBuilder(new Pose2d(-11, -50, Math.toRadians(270)))
-                .turnTo(270)
-                .splineToLinearHeading(new Pose2d(-10, 10, Math.toRadians(135)), Math.toRadians(-30))
+        TrajectoryActionBuilder goToShootingZone1 = mechanumDrive
+                .actionBuilder(new Pose2d(-11, 50, Math.toRadians(180)))
+                .splineToLinearHeading(new Pose2d(-10, 10, Math.toRadians(135)), Math.toRadians(-10))
                 .waitSeconds(1);
 
-        TrajectoryActionBuilder goToBallSet2 = myBot.getDrive()
+        TrajectoryActionBuilder goToBallSet2 = mechanumDrive
                 .actionBuilder(new Pose2d(-10, 10, Math.toRadians(135)))
-                .splineToLinearHeading(new Pose2d(12, -30, Math.toRadians(270)), Math.toRadians(-20));
+                .splineToLinearHeading(new Pose2d(12, 30, Math.toRadians(90)), Math.toRadians(-20));
 
-        TrajectoryActionBuilder intakeBallSet2 = myBot.getDrive()
-                .actionBuilder(new Pose2d(12, -30, Math.toRadians(270)))
-                .lineToY(-50);
+        TrajectoryActionBuilder intakeBallSet2 = mechanumDrive
+                .actionBuilder(new Pose2d(12, 30, Math.toRadians(90)))
+                .lineToY(50);
 
-        TrajectoryActionBuilder goToShootingZone2 = myBot.getDrive()
-                .actionBuilder(new Pose2d(12, -50, Math.toRadians(270)))
-                .turnTo(270)
-                .splineToLinearHeading(new Pose2d(-10, 10, Math.toRadians(135)), Math.toRadians(-30))
+        TrajectoryActionBuilder goToShootingZone2 = mechanumDrive
+                .actionBuilder(new Pose2d(12, 50, Math.toRadians(90)))
+                .splineToLinearHeading(new Pose2d(-10, 10, Math.toRadians(135)), Math.toRadians(30))
                 .waitSeconds(1);
 
         myBot.runAction(
