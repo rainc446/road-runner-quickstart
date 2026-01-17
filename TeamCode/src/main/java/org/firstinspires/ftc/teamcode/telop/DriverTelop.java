@@ -97,12 +97,13 @@ public class DriverTelop extends LinearOpMode {
 
     public void controllerBehaviorB () {
         if (gamepad2.x) {
-            outtake.runOuttake();
+            outtake.ramp();
         }
 
         if (gamepad2.b) {
-            outtake.idle();
+            outtake.runOuttakeClose();
         }
+
         if (gamepad2.a) {
             outtake.stop();
         }

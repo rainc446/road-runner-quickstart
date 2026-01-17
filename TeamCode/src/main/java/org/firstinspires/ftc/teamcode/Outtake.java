@@ -21,8 +21,12 @@ public class Outtake {
         flywheelMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
-    public void runOuttake() {
+    public void runOuttakeFar() {
         flywheelMotor.setPower(0.80);
+    }
+
+    public void runOuttakeClose() {
+        flywheelMotor.setPower(0.65);
     }
 
     public void idle() {

@@ -77,7 +77,7 @@ public class Spindexer {
     public void cycleSpindexer () {
         //&& timeElapsed - System.currentTimeMillis() >= 1200
 
-        if (spindexerMotor.getMode().equals(DcMotor.RunMode.STOP_AND_RESET_ENCODER) && isServoDown() ) {
+        if (spindexerMotor.getMode().equals(DcMotor.RunMode.STOP_AND_RESET_ENCODER)) {
             spindexerMotor.setTargetPosition((int) oneCycle - error);
             spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             spindexerMotor.setPower(.5);
@@ -87,7 +87,17 @@ public class Spindexer {
             spindexerMotor.setPower(0);
             spindexerMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
+//        else if (spindexerMotor.getCurrentPosition() > (int) oneCycle - error) {
+//            int actualPose = spindexerMotor.getCurrentPosition();
+//            spindexerMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//            spindexerMotor.setPower(-0.5);
+//            spindexerMotor.setTargetPosition((int) (oneCycle - actualPose));
+//            spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        }
 
+    }
+
+    public void readjust () {
 
     }
     public void checkSpinStatus () { //checks if the spindexer has reached target position
