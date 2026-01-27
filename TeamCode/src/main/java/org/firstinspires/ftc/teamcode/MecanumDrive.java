@@ -247,7 +247,7 @@ public final class MecanumDrive {
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        localizer = new PinpointLocalizer(hardwareMap, PARAMS.inPerTick, new Pose2d(0,0,0));
+        localizer = new PinpointLocalizer(hardwareMap, PARAMS.inPerTick, pose); //????????
 
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }

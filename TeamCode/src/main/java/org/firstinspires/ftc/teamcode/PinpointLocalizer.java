@@ -8,7 +8,9 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 
 import java.util.Objects;
@@ -30,7 +32,8 @@ PinpointLocalizer implements Localizer {
     public final GoBildaPinpointDriver.EncoderDirection initialParDirection, initialPerpDirection;
 
     private Pose2d txWorldPinpoint;
-    private Pose2d txPinpointRobot = new Pose2d(0,0,0);
+    private Pose2d txPinpointRobot;
+
     //Field is inverted
     public PinpointLocalizer(HardwareMap hardwareMap, double inPerTick, Pose2d initialPose) {
         // TODO: make sure your config has a Pinpoint device with this name
@@ -41,6 +44,7 @@ PinpointLocalizer implements Localizer {
         driver.setEncoderResolution(1 / mmPerTick, DistanceUnit.MM);
         driver.setOffsets(mmPerTick * PARAMS.perpXTicks, mmPerTick * PARAMS.parYTicks, DistanceUnit.MM);
         driver.resetPosAndIMU();
+        driver.recalibrateIMU();
 
 
         // TODO: reverse encoder directions if needed
@@ -49,13 +53,19 @@ PinpointLocalizer implements Localizer {
 
         driver.setEncoderDirections(initialParDirection, initialPerpDirection);
 
+//        driver.setPosition(new Pose2D(DistanceUnit.INCH, initialPose.component1().x,
+//                initialPose.component1().y,
+//                AngleUnit.RADIANS, initialPose.component2().toDouble())); //driver position has to be set to initalPose
+
         txWorldPinpoint = initialPose;
+        txPinpointRobot = initialPose;
     }
 
     @Override
     public void setPose(Pose2d pose) {
         txWorldPinpoint = pose.times(txPinpointRobot.inverse());
     }
+
     @Override
     public Pose2d getPose() {
         return txWorldPinpoint.times(txPinpointRobot);
