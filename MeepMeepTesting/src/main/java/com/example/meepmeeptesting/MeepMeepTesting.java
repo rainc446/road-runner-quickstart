@@ -85,14 +85,19 @@ public class MeepMeepTesting {
                 .splineToLinearHeading(new Pose2d(-10, 10, Math.toRadians(135)), Math.toRadians(30))
                 .waitSeconds(1);
 
+        TrajectoryActionBuilder turnInPlace = mecanumDrive
+                .actionBuilder(new Pose2d(0,0,Math.toRadians(0)))
+                .turn(Math.toRadians(360));
+
         myBot.runAction(
                 new SequentialAction(
-                        goToObelisk.build(),
-                        goToShootingZone0.build(),
-                        goToBallSet1.build(),
-                        intakeBallSet1.build(),
-                        goToShootingZone1.build(),
-                        goToBallSet2.build()
+                        turnInPlace.build()
+//                        goToObelisk.build(),
+//                        goToShootingZone0.build(),
+//                        goToBallSet1.build(),
+//                        intakeBallSet1.build(),
+//                        goToShootingZone1.build(),
+//                        goToBallSet2.build()
                     )
         );
 

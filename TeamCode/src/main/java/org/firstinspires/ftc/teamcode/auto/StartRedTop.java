@@ -77,7 +77,7 @@ public class StartRedTop extends LinearOpMode {
                 .lineToXConstantHeading(10);
 
         TrajectoryActionBuilder turnInPlace = mecanumDrive.actionBuilder(new Pose2d(0,0,Math.toRadians(0)))
-                        .turnTo(Math.toRadians(360));
+                        .turn(Math.toRadians(360));
 
         Actions.runBlocking(
                 new SequentialAction(
